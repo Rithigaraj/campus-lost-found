@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campus Lost &amp; Found Network</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232563eb'/><text x='50' y='68' font-size='48' text-anchor='middle' fill='white' font-family='Segoe UI' font-weight='bold'>CL</text></svg>">
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">CL</div>
+      <div>
+        <div class="brand-name">Campus Lost &amp; Found</div>
+        <div class="brand-sub">Report &middot; Match &middot; Recover</div>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <button class="nav-btn active" data-view="report-lost">&#9679; Report Lost Item</button>
+      <button class="nav-btn" data-view="report-found">&#9679; Report Found Item</button>
+      <button class="nav-btn" data-view="reports">&#9679; View Reports</button>
+      <button class="nav-btn" data-view="matching">&#9679; Smart Matching</button>
+      <button class="nav-btn" data-view="update">&#9679; Update Reports</button>
+      <button class="nav-btn" data-view="delete">&#9679; Delete Reports</button>
+      <button class="nav-btn" data-view="returned">&#9679; Mark as Returned</button>
+    </nav>
+
+    <div class="sidebar-footer">Spring Boot &middot; JDBC &middot; MySQL</div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <h1 id="page-title">Report Lost Item</h1>
+        <p id="page-subtitle">Register an item reported as missing on campus.</p>
+      </div>
+      <div class="db-badge" id="db-badge"><span class="dot"></span><span id="db-badge-text">Checking&hellip;</span></div>
+    </header>
+
+    <main class="content">
+
+      <!-- 1. REPORT LOST -->
+      <section id="view-report-lost" class="view active">
+        <div class="card">
+          <form id="lost-form" class="form-grid">
+            <label for="lost-itemName">Item Name *</label>
+            <input id="lost-itemName" list="category-list" placeholder="e.g. Blue Water Bottle" required>
+
+            <label for="lost-category">Category *</label>
+            <input id="lost-category" list="category-list" placeholder="e.g. Electronics" required>
+
+            <label for="lost-description">Description</label>
+            <textarea id="lost-description" rows="3" placeholder="Colour, brand, distinguishing features&hellip;"></textarea>
+
+            <label for="lost-location">Last Seen Location</label>
+            <input id="lost-location" placeholder="e.g. Central Library, 2nd floor">
+
+            <label for="lost-dateLost">Date Lost *</label>
+            <input type="date" id="lost-dateLost" required>
+
+            <label for="lost-contactName">Contact Name *</label>
+            <input id="lost-contactName" placeholder="Your name" required>
+
+            <label for="lost-contactInfo">Contact Info *</label>
+            <input id="lost-contactInfo" placeholder="Phone or email" required>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Save Lost Report</button>
+              <button type="reset" class="btn btn-outline">Clear Form</button>
+            </div>
+          </form>
+          <div id="lost-suggest" class="suggest-box hidden"></div>
+        </div>
+      </section>
+
+      <!-- 2. REPORT FOUND -->
+      <section id="view-report-found" class="view">
+        <div class="card">
+          <form id="found-form" class="form-grid">
+            <label for="found-itemName">Item Name *</label>
+            <input id="found-itemName" placeholder="e.g. Student ID Card" required>
+
+            <label for="found-category">Category *</label>
+            <input id="found-category" list="category-list" placeholder="e.g. ID Card" required>
+
+            <label for="found-description">Description</label>
+            <textarea id="found-description" rows="3" placeholder="Colour, brand, contents&hellip;"></textarea>
+
+            <label for="found-location">Found Location</label>
+            <input id="found-location" placeholder="e.g. Cafeteria, table 4">
+
+            <label for="found-dateFound">Date Found *</label>
+            <input type="date" id="found-dateFound" required>
+
+            <label for="found-contactName">Contact Name *</label>
+            <input id="found-contactName" placeholder="Who found it" required>
+
+            <label for="found-contactInfo">Contact Info *</label>
+            <input id="found-contactInfo" placeholder="Phone or email" required>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Save Found Report</button>
+              <button type="reset" class="btn btn-outline">Clear Form</button>
+            </div>
+          </form>
+          <div id="found-suggest" class="suggest-box hidden"></div>
+        </div>
+      </section>
+
+      <!-- 3. VIEW REPORTS -->
+      <section id="view-reports" class="view">
+        <div class="card" id="records-reports"></div>
+      </section>
+
+      <!-- 4. SMART MATCHING -->
+      <section id="view-matching" class="view">
+        <div class="card">
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <select id="match-scope">
+                <option value="all">All open reports</option>
+                <option value="lost">Match a Lost ID&hellip;</option>
+                <option value="found">Match a Found ID&hellip;</option>
+              </select>
+              <input type="number" min="1" id="match-id" class="hidden" placeholder="Report ID">
+              <button id="match-run" class="btn btn-primary">Run Smart Matching</button>
+            </div>
+            <div class="toolbar-right muted" id="match-count"></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Score</th><th>Lost #</th><th>Lost Item</th><th>Lost Location</th>
+                  <th>Lost Date</th><th>Found #</th><th>Found Item</th>
+                  <th>Found Location</th><th>Found Date</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="match-body"></tbody>
+            </table>
+            <div id="match-empty" class="empty">Choose a scope and press <strong>Run Smart Matching</strong>.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. UPDATE REPORTS -->
+      <section id="view-update" class="view">
+        <div class="card" id="records-update"></div>
+      </section>
+
+      <!-- 6. DELETE REPORTS -->
+      <section id="view-delete" class="view">
+        <div class="card" id="records-delete"></div>
+      </section>
+
+      <!-- 7. MARK AS RETURNED -->
+      <section id="view-returned" class="view">
+        <div class="card" id="records-returned"></div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<datalist id="category-list">
+  <option>Electronics</option>
+  <option>Books</option>
+  <option>Keys</option>
+  <option>ID Card</option>
+  <option>Bags</option>
+  <option>Documents</option>
+  <option>Accessories</option>
+  <option>Clothing</option>
+  <option>Water Bottle</option>
+  <option>Other</option>
+</datalist>
+
+<!-- EDIT MODAL -->
+<div class="modal" id="edit-modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="edit-title">Edit Report</h2>
+      <button class="modal-close" id="edit-close" aria-label="Close">&times;</button>
+    </div>
+    <div class="form-grid" id="edit-form">
+      <label for="edit-itemName">Item Name *</label>
+      <input id="edit-itemName" required>
+
+      <label for="edit-category">Category *</label>
+      <input id="edit-category" list="category-list" required>
+
+      <label for="edit-description">Description</label>
+      <textarea id="edit-description" rows="3"></textarea>
+
+      <label for="edit-location">Location</label>
+      <input id="edit-location">
+
+      <label for="edit-date" id="edit-date-label">Date *</label>
+      <input type="date" id="edit-date" required>
+
+      <label for="edit-contactName">Contact Name *</label>
+      <input id="edit-contactName" required>
+
+      <label for="edit-contactInfo">Contact Info *</label>
+      <input id="edit-contactInfo" required>
+
+      <label for="edit-status">Status</label>
+      <select id="edit-status">
+        <option>OPEN</option>
+        <option>MATCHED</option>
+        <option>RETURNED</option>
+        <option>CLOSED</option>
+      </select>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" id="edit-save">Save Changes</button>
+        <button class="btn btn-outline" id="edit-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

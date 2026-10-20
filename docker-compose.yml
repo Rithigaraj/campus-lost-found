@@ -1,0 +1,36 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: clf-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-Rithiga321}
+      MYSQL_DATABASE: campus_lost_found
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD:-Rithiga321}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  app:
+    build: .
+    image: campus-lost-found:1.0.0
+    container_name: clf-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/campus_lost_found?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USER: root
+      DB_PASSWORD: ${DB_PASSWORD:-Rithiga321}
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql-data:
