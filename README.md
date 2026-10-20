@@ -1,6 +1,6 @@
 <div align="center">
 
-# Campus Lost &amp; Found Network
+# Campus Lost & Found Network
 
 **Report lost belongings. Register found items. Recover them with smart matching.**
 
