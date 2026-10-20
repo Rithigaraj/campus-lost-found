@@ -7,11 +7,16 @@
 A full-stack Java application with a Spring Boot REST API, a responsive web UI,
 a JDBC/MySQL data layer, and an optional console client.
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-onrender.com-46E3B7?logo=render&logoColor=white)](https://campus-lost-found-idnf.onrender.com)
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-rithigarajkumar-2496ED?logo=docker&logoColor=white)](https://hub.docker.com/r/rithigarajkumar/campus-lost-found)
+
 ![Java](https://img.shields.io/badge/Java-17%2B-orange?logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.1-brightgreen?logo=springboot&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-8.x-blue?logo=mysql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-compose-2496ED?logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
+
+**🔗 Live demo: [campus-lost-found-idnf.onrender.com](https://campus-lost-found-idnf.onrender.com)**
 
 </div>
 
@@ -35,6 +40,9 @@ a JDBC/MySQL data layer, and an optional console client.
 - [Configuration](#configuration)
 - [Testing](#testing)
 - [Deployment](#deployment)
+  - [Live deployment (Render)](#live-deployment-render)
+  - [Docker (self-hosted)](#docker-self-hosted)
+  - [Pre-built Docker image](#pre-built-docker-image)
 - [Roadmap](#roadmap)
 - [License](#license)
 
@@ -336,19 +344,47 @@ mvn clean package -DskipTests
 
 ## Deployment
 
-### Docker / any container host
+This project is **fully containerized with Docker** and is deployed in two ways:
+a self-contained **Docker Compose** stack for local/self-hosted use, and a
+**Docker image on Docker Hub** that is running live on **Render**.
+
+### Live deployment (Render)
+
+The production instance runs the Docker image on [Render](https://render.com):
+
+- **URL:** https://campus-lost-found-idnf.onrender.com
+- **App service:** free web service built from the repo `Dockerfile`
+- **Database:** Aiven free MySQL 8.4 (`LOST_ITEMS` / `FOUND_ITEMS` created from `schema.sql`)
+- **Environment variables:** `DB_URL`, `DB_USER`, `DB_PASSWORD`
+- **Auto-deploy:** every push to `master`
+
+### Docker (self-hosted)
+
+Everything (Spring Boot app + MySQL) runs from one command — Docker is the
+primary way this project is packaged and shipped:
 
 ```bash
 docker compose up -d --build
 ```
 
-### Railway / Render / Fly.io
+- App: http://localhost:8080 — MySQL: host port 3307
+- `schema.sql` is applied automatically on first start; data persists in the `mysql-data` volume.
 
-1. Connect the GitHub repository.
+### Pre-built Docker image
+
+The same build is published to Docker Hub:
+
+```bash
+docker pull rithigarajkumar/campus-lost-found:latest
+```
+
+### Railway / Fly.io / other container hosts
+
+1. Connect the GitHub repository (or point at the Docker Hub image).
 2. Add a managed MySQL add-on and note its host, port, user, password.
 3. Set environment variables: `DB_URL`, `DB_USER`, `DB_PASSWORD`.
-4. Build command: `mvn clean package -DskipTests`
-   Start command: `java -jar target/campus-lost-found-1.0.0.jar`
+4. Build from the `Dockerfile`, or: build `mvn clean package -DskipTests`,
+   start `java -jar target/campus-lost-found-1.0.0.jar`.
 5. Run `schema.sql` against the managed database once.
 
 ### Behind a reverse proxy
