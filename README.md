@@ -224,6 +224,24 @@ Then open **http://localhost:8080**.
 - Data persists in the named volume `mysql-data`.
 - Verified with Docker Compose v2 (`docker compose ps`, both containers healthy).
 
+#### Pre-built image (Docker Hub)
+
+A pre-built image is published at **https://hub.docker.com/r/rithigarajkumar/campus-lost-found**:
+
+```bash
+docker pull rithigarajkumar/campus-lost-found:latest
+```
+
+Run it against any MySQL instance by supplying the connection settings:
+
+```bash
+docker run -d --name clf-app -p 8080:8080 \
+  -e DB_URL="jdbc:mysql://host.docker.internal:3306/campus_lost_found?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC" \
+  -e DB_USER=root \
+  -e DB_PASSWORD=YourPassword \
+  rithigarajkumar/campus-lost-found:latest
+```
+
 Stop and remove:
 
 ```bash
