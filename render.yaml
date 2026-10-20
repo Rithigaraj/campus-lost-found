@@ -1,0 +1,46 @@
+# Render Blueprint for the Campus Lost & Found Network
+#
+# Render has no managed MySQL, so this blueprint runs MySQL as an internal
+# private service (with a persistent disk) alongside the Spring Boot web app.
+#
+# Deploy: Render Dashboard -> New -> Blueprint -> select this GitHub repo.
+# Docs:   https://render.com/docs/blueprint-spec
+
+services:
+  # ---------- MySQL database (private, not publicly reachable) ----------
+  - type: pserv
+    name: campus-lost-found-db
+    runtime: docker
+    plan: starter
+    autoDeploy: true
+    dockerCommand: ""
+    image:
+      url: mysql:8.4
+    disk:
+      name: mysql-data
+      mountPath: /var/lib/mysql
+      sizeGB: 5
+    envVars:
+      - key: MYSQL_ROOT_PASSWORD
+        generateValue: true
+      - key: MYSQL_DATABASE
+        value: campus_lost_found
+
+  # ---------- Spring Boot web application ----------
+  - type: web
+    name: campus-lost-found
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/lost
+    autoDeploy: true
+    envVars:
+      - key: DB_URL
+        value: jdbc:mysql://campus-lost-found-db:3306/campus_lost_found?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - key: DB_USER
+        value: root
+      - key: DB_PASSWORD
+        fromService:
+          type: pserv
+          name: campus-lost-found-db
+          envVarKey: MYSQL_ROOT_PASSWORD
