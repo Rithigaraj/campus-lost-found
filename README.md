@@ -98,6 +98,7 @@ Campus_Lost/
 ├── schema.sql                     # MySQL DDL (creates database + tables)
 ├── Dockerfile                     # multi-stage build (Maven -> JRE)
 ├── docker-compose.yml             # app + mysql services
+├── .env.example                   # sample DB password for compose
 ├── .dockerignore
 ├── .gitignore
 ├── LICENSE
@@ -208,11 +209,12 @@ Open **http://localhost:8080** in your browser.
 The whole stack (Spring Boot app + MySQL) starts with one command:
 
 ```bash
-# Optional: override the MySQL password
-# PowerShell:  $env:DB_PASSWORD="YourPassword"
-# bash:        export DB_PASSWORD=YourPassword
+# Optional: copy the sample env file and set your own DB password
+cp .env.example .env          # Windows: copy .env.example .env
 
 docker compose up --build
+# ...or run detached:
+docker compose up --build -d
 ```
 
 Then open **http://localhost:8080**.
@@ -220,6 +222,7 @@ Then open **http://localhost:8080**.
 - MySQL is exposed on host port **3307** (mapped to container 3306).
 - The schema is applied automatically on first start via `schema.sql`.
 - Data persists in the named volume `mysql-data`.
+- Verified with Docker Compose v2 (`docker compose ps`, both containers healthy).
 
 Stop and remove:
 
